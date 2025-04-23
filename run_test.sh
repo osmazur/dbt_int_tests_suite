@@ -78,6 +78,13 @@ while IFS= read -r repo_url; do
     dbt clean --target "$DBT_TARGET"
     if [ "$repo_name" == "snowplow_web" ]; then
       bash .scripts/integration_test.sh -d "$DBT_TARGET" 
+    elif [ "$repo_name" == "dbt-external-tables" ]; then
+     dbt deps --target "$DBT_TARGET"
+     dbt seed --full-refresh --target "$DBT_TARGET"
+     dbt run-operation prep_external --target "$DBT_TARGET"
+     dbt run-operation dbt_external_tables.stage_external_sources --vars 'ext_full_refresh: true' --target "$DBT_TARGET"
+     dbt run-operation dbt_external_tables.stage_external_sources --target "$DBT_TARGET"
+     dbt test --target "$DBT_TARGET"
     else
       dbt deps --target "$DBT_TARGET" || exit 1
       dbt seed --target "$DBT_TARGET" --full-refresh || exit 1
