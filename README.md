@@ -24,6 +24,11 @@ EOF
 
 # Those envs will be exported during the run of the test.sh file
 
+# Make file executable
+
+chmod +x run_test.sh
+
 # Run integration tests
+
 ./run_test.sh
 
