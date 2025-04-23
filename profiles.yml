@@ -1,0 +1,29 @@
+default:
+  target: snowflake
+  outputs:
+    snowflake:
+      type: snowflake
+      threads: 4
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}" 
+      user: "{{ env_var('SNOWFLAKE_USER') }}" 
+      password: "{{ env_var('DBT_ENV_SECRET_SNOWFLAKE_PASS') }}" 
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}" 
+      role: "{{ env_var('SNOWFLAKE_ROLE') }}" 
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}" 
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}" 
+      client_session_keep_alive: True
+
+    embucket:
+      type: snowflake
+      # Uncomment following lines to run against local icehut
+      host: localhost
+      port: 3000
+      protocol: http
+      account: "aa06228.us-east-2.aws"         # Snowflake account identifier (e.g., "abc123.us-east-1")
+      user: "{{ env_var('EM_SNOWFLAKE_USER') }}"               # Snowflake username
+      password: "{{ env_var('SNOWFLAKE_SECRET') }}"       # Snowflake password
+      role: "ACCOUNTADMIN"               # Optional: Snowflake role (e.g., "SYSADMIN")
+      database: "{{ env_var('EM_SNOWFLAKE_DB') }}"       # Database name (e.g., "MY_DATABASE")
+      warehouse: "{{ env_var('EM_SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}" # Warehouse name (e.g., "MY_WAREHOUSE")
+      schema: "public"           # Default schema name (e.g., "PUBLIC")
+      threads: 1                        # Number of threads to use for parallelization
