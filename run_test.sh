@@ -55,6 +55,7 @@ while IFS= read -r repo_url; do
     # Run DBT commands
     echo "🚀 Running DBT tests for $repo_name with target '$DBT_TARGET'..."
     dbt debug --target "$DBT_TARGET"
+    dbt clean --target "$DBT_TARGET"
     dbt deps --target "$DBT_TARGET" || exit 1
     dbt seed --target "$DBT_TARGET" --full-refresh || exit 1
     dbt run --target "$DBT_TARGET" --full-refresh || exit 1

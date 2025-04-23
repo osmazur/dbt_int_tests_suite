@@ -1,7 +1,9 @@
 # dbt_int_tests_suite
 
-.env file 
 
+```sh
+# Create a .env configuration file
+cat << EOF > .env
 export DBT_TARGET=snowflake
 
 export SNOWFLAKE_ACCOUNT=
@@ -17,3 +19,11 @@ export EM_SNOWFLAKE_PASSWORD=
 export EM_SNOWFLAKE_DB=
 export EM_SNOWFLAKE_SCHEMA=
 export EM_SNOWFLAKE_WAREHOUSE=
+
+EOF
+
+# Those envs will be exported during the run of the test.sh file
+
+# Run integration tests
+./run_test.sh
+
