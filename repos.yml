@@ -1,8 +1,8 @@
-https://github.com/dbt-labs/dbt-external-tables.git
-https://github.com/calogica/dbt-expectations.git
-https://github.com/fivetran/dbt_ad_reporting.git
-https://github.com/fivetran/dbt_amazon_ads.git
-https://github.com/snowplow/dbt-snowplow-web.git
 https://github.com/dbt-labs/dbt-utils.git
-https://github.com/infinitelambda/dbt-audit-helper-ext.git
-https://github.com/fivetran/dbt_xero_source.git
+#https://github.com/snowplow/dbt-snowplow-web.git
+#https://github.com/dbt-labs/dbt-external-tables.git
+#https://github.com/calogica/dbt-expectations.git
+#https://github.com/fivetran/dbt_ad_reporting.git
+#https://github.com/fivetran/dbt_amazon_ads.git
+#https://github.com/infinitelambda/dbt-audit-helper-ext.git
+#https://github.com/fivetran/dbt_xero_source.git
