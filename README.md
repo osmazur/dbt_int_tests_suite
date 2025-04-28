@@ -35,7 +35,7 @@ export EM_SNOWFLAKE_WAREHOUSE=
 EOF
 ```
 
-4. Make the sh ile executable
+4. Make the sh file executable
 ```sh
 chmod +x run_test.sh
 ```
