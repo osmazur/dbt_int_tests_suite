@@ -11,7 +11,7 @@ cd dbt_int_tests_suite
 ```
 
 3. Create the .env file. Choose the target database and add you creds
-Those envs will be exported during the run of the test.sh file
+Those envs will be exported during the run of the run_test.sh file
 
 ```sh
 # Create a .env configuration file
