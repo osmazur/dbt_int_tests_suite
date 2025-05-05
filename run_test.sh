@@ -12,9 +12,26 @@ DBT_TARGET="snowflake"
 # File with repo URLs
 REPOS_FILE="$SCRIPT_DIR/repos.yml"
 
+
 # Log file for failed repos
 FAILED_REPOS_FILE="$SCRIPT_DIR/failed_repos.log"
 > "$FAILED_REPOS_FILE"  # Clear previous log
+# Determine Python command
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_CMD="python"
+else
+    echo "Error: Neither python3 nor python found. Please install Python."
+    exit 1
+fi
+
+# Check Python version
+PYTHON_VERSION=$($PYTHON_CMD --version 2>&1)
+if [[ "$PYTHON_VERSION" =~ "Python 2" ]]; then
+    echo "Error: Python 3 is required."
+    exit 1
+fi
 
 while IFS= read -r repo_url; do
   # Skip empty lines or comments
@@ -42,13 +59,19 @@ while IFS= read -r repo_url; do
 
   if [ -d "$repo_path" ]; then
     echo "Setting up for $repo_name..."
-    cd "$repo_path" || continue
-    echo ""
 
+    cd "$repo_path"
+    echo ""
+    # Create and activate virtual env
     echo "###############################"
-    echo "Creating virtual environment..."
-    python3 -m venv env
-    source env/bin/activate
+    echo ""
+    echo "Creating virtual environment with $PYTHON_CMD ($PYTHON_VERSION)..."
+    $PYTHON_CMD -m venv env
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+        source env/Scripts/activate
+    else
+        source env/bin/activate
+    fi
     echo ""
 
     echo "###############################"
@@ -66,9 +89,11 @@ while IFS= read -r repo_url; do
     fi
 
     echo "###############################"
-    echo "Installing dbt core and dbt-snowflake..."
-    python -m pip install --upgrade pip >/dev/null 2>&1
-    python -m pip install dbt-core dbt-snowflake >/dev/null 2>&1
+
+    echo ""
+    echo "Installing dbt core dbt-snowflake..."
+    $PYTHON_CMD -m pip install --upgrade pip >/dev/null 2>&1
+    $PYTHON_CMD -m pip install dbt-core dbt-snowflake > pip_install.log 2>&1
     echo ""
 
     echo "###############################"

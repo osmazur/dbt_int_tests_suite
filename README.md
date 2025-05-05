@@ -1,5 +1,17 @@
 # dbt_int_tests_suite
 
+1. Clone the repository
+```sh
+git clone https://github.com/osmazur/dbt_int_tests_suite.git
+```
+
+2. cd into the main folder
+```sh
+cd dbt_int_tests_suite
+```
+
+3. Create the .env file. Choose the target database and add you creds
+Those envs will be exported during the run of the run_test.sh file
 
 ```sh
 # Create a .env configuration file
@@ -21,14 +33,16 @@ export EM_SNOWFLAKE_SCHEMA=
 export EM_SNOWFLAKE_WAREHOUSE=
 
 EOF
+```
 
-# Those envs will be exported during the run of the test.sh file
-
-# Make file executable
-
+4. Make the sh file executable
+```sh
 chmod +x run_test.sh
+```
 
-# Run integration tests
-
+5. Run integration test
+```sh
 ./run_test.sh
+```
 
+In repos.yml there are packages with integrations tests. By default it runs integrations tests from the dbt-utils package. Uncomment other ones to run integration tests.
