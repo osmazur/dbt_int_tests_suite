@@ -85,6 +85,18 @@ while IFS= read -r repo_url; do
     echo ""
 
     cd "$SCRIPT_DIR"
+
+
+  # Install requirements
+    echo ""
+    echo "###############################"
+    echo ""
+
+    pip install -r $SCRIPT_DIR/requirements.txt
+
+    echo ""
+    echo "###############################"
+
     echo ""
     echo "###############################"
     echo ""
