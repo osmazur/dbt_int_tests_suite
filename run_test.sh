@@ -102,6 +102,12 @@ while IFS= read -r repo_url; do
     echo "###############################"
     echo "Running DBT tests for $repo_name with target '$DBT_TARGET'..."
     dbt debug --target "$DBT_TARGET" || echo "$repo_name: dbt debug failed" >> "$FAILED_REPOS_FILE"
+
+    # Load data and create embucket catalog if the embucket is a target 
+    if [["$DBT_TARGET" == "embukcet"]]; then
+       $PYTHON_CMD upload.py
+    fi
+
     dbt clean --target "$DBT_TARGET"
 
     if [ "$repo_name" == "snowplow_web" ]; then
