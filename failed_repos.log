@@ -1,0 +1,3 @@
+dbt-utils: dbt seed failed
+dbt-utils: dbt run failed
+dbt-utils: dbt test failed

@@ -5,7 +5,7 @@ import os
 
 url = "http://localhost:3000"
 
-database = "snowplow"
+database = "embucket"
 schema = "public"
 
 
