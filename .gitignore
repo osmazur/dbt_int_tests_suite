@@ -1,3 +1,5 @@
 .env
 .user.yml
 target/
+data/
+packages/

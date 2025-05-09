@@ -10,7 +10,7 @@ export DBT_PROFILES_DIR="$SCRIPT_DIR"
 SKIP_EXISTING=false
 
 # Set default DBT target (can be overridden by .env)
-DBT_TARGET="snowflake"
+DBT_TARGET="embucket"
 
 # File with repo URLs
 REPOS_FILE="$SCRIPT_DIR/repos.yml"
@@ -41,7 +41,7 @@ while IFS= read -r repo_url; do
   [[ -z "$repo_url" || "$repo_url" =~ ^# ]] && continue
 
   repo_name=$(basename "$repo_url" .git)
-  repo_dir="target/$repo_name"
+  repo_dir="packages/$repo_name"
 
   echo "###############################"
   echo ""
@@ -77,10 +77,25 @@ while IFS= read -r repo_url; do
     fi
     echo ""
 
+  
     echo "###############################"
+    echo ""
     echo "Loading environment from .env..."
     source "$SCRIPT_DIR/.env"
     echo ""
+
+    cd "$SCRIPT_DIR"
+    echo ""
+    echo "###############################"
+    echo ""
+    echo "Creating embucket database"
+    # Load data and create embucket catalog if the embucket is a target 
+    if [ "$DBT_TARGET" = "embucket" ]; then
+       $PYTHON_CMD $SCRIPT_DIR/upload.py
+    fi
+    echo ""
+
+    cd "$repo_path"
 
     DBT_TARGET="${DBT_TARGET:-snowflake}"
 
@@ -97,17 +112,12 @@ while IFS= read -r repo_url; do
     echo "Installing dbt core dbt-snowflake..."
     $PYTHON_CMD -m pip install --upgrade pip >/dev/null 2>&1
     $PYTHON_CMD -m pip install dbt-core dbt-snowflake > pip_install.log 2>&1
+    #$PYTHON_CMD -m pip install snowflake-connector-python > pip_install.log 2>&1
     echo ""
 
     echo "###############################"
     echo "Running DBT tests for $repo_name with target '$DBT_TARGET'..."
     dbt debug --target "$DBT_TARGET" || echo "$repo_name: dbt debug failed" >> "$FAILED_REPOS_FILE"
-
-    # Load data and create embucket catalog if the embucket is a target 
-    if [["$DBT_TARGET" == "embukcet"]]; then
-       $PYTHON_CMD upload.py
-    fi
-
     dbt clean --target "$DBT_TARGET"
 
     if [ "$repo_name" == "snowplow_web" ]; then
