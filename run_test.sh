@@ -6,6 +6,9 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export DBT_PROFILES_DIR="$SCRIPT_DIR"
 
+# Skip if the repo alredy exists in target dir
+SKIP_EXISTING=false
+
 # Set default DBT target (can be overridden by .env)
 DBT_TARGET="snowflake"
 
@@ -44,7 +47,7 @@ while IFS= read -r repo_url; do
   echo ""
 
   # Skip if already cloned
-  if [ -d "$repo_dir" ]; then
+  if [ "$SKIP_EXISTING" = true ] && [ -d "$repo_dir" ]; then
     echo "Skipping $repo_name — already exists in target/"
     continue
   fi
