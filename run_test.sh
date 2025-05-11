@@ -16,9 +16,6 @@ DBT_TARGET="embucket"
 REPOS_FILE="$SCRIPT_DIR/repos.yml"
 
 
-# Log file for failed repos
-FAILED_REPOS_FILE="$SCRIPT_DIR/failed_repos.log"
-> "$FAILED_REPOS_FILE"  # Clear previous log
 # Determine Python command
 if command -v python3 >/dev/null 2>&1; then
     PYTHON_CMD="python3"
@@ -97,13 +94,11 @@ while IFS= read -r repo_url; do
     echo ""
     echo "###############################"
     echo ""
-
+    echo "Installing the requirements"
     pip install -r $SCRIPT_DIR/requirements.txt >/dev/null 2>&1
 
     echo ""
-    echo "###############################"
-
-    echo ""
+    
     echo "###############################"
     echo ""
     echo "Creating embucket database"
@@ -132,9 +127,13 @@ while IFS= read -r repo_url; do
     $PYTHON_CMD -m pip install dbt-core dbt-snowflake > pip_install.log 2>&1
     echo ""
 
+#set +e
     echo "###############################"
+    echo ""
     echo "Running DBT tests for $repo_name with target '$DBT_TARGET'..."
+    set -e
     dbt debug --target "$DBT_TARGET" 
+    set +e
     dbt clean --target "$DBT_TARGET"
 
     if [ "$repo_name" == "snowplow_web" ]; then
@@ -165,6 +164,7 @@ while IFS= read -r repo_url; do
     echo "Skipping $repo_name — no integration_tests directory found"
   fi
 
+echo ""
 done < "$REPOS_FILE"
 
 echo "dbt seed - $seed"
