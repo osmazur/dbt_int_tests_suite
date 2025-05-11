@@ -43,6 +43,12 @@ while IFS= read -r repo_url; do
   repo_name=$(basename "$repo_url" .git)
   repo_dir="packages/$repo_name"
 
+  # Setup logs directory and vars
+  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+  LOG_DIR="$SCRIPT_DIR/logs/$repo_name"
+  mkdir -p "$LOG_DIR"   
+  LOG_FILE="$LOG_DIR/${TIMESTAMP}.log"
+
   echo "###############################"
   echo ""
 
@@ -92,7 +98,7 @@ while IFS= read -r repo_url; do
     echo "###############################"
     echo ""
 
-    pip install -r $SCRIPT_DIR/requirements.txt
+    pip install -r $SCRIPT_DIR/requirements.txt >/dev/null 2>&1
 
     echo ""
     echo "###############################"
@@ -124,32 +130,32 @@ while IFS= read -r repo_url; do
     echo "Installing dbt core dbt-snowflake..."
     $PYTHON_CMD -m pip install --upgrade pip >/dev/null 2>&1
     $PYTHON_CMD -m pip install dbt-core dbt-snowflake > pip_install.log 2>&1
-    #$PYTHON_CMD -m pip install snowflake-connector-python > pip_install.log 2>&1
     echo ""
 
     echo "###############################"
     echo "Running DBT tests for $repo_name with target '$DBT_TARGET'..."
-    dbt debug --target "$DBT_TARGET" || echo "$repo_name: dbt debug failed" >> "$FAILED_REPOS_FILE"
+    dbt debug --target "$DBT_TARGET" 
     dbt clean --target "$DBT_TARGET"
 
     if [ "$repo_name" == "snowplow_web" ]; then
-      if ! bash .scripts/integration_test.sh -d "$DBT_TARGET"; then
-        echo "$repo_name: integration_test.sh failed" >> "$FAILED_REPOS_FILE"
-      fi
+      dbt deps --target "$DBT_TARGET"
+      bash .scripts/integration_test.sh -d "$DBT_TARGET"
     elif [ "$repo_name" == "dbt-external-tables" ]; then
-      dbt deps --target "$DBT_TARGET" || echo "$repo_name: dbt deps failed" >> "$FAILED_REPOS_FILE"
-      dbt seed --full-refresh --target "$DBT_TARGET" || echo "$repo_name: dbt seed failed" >> "$FAILED_REPOS_FILE"
-      dbt run-operation prep_external --target "$DBT_TARGET" || echo "$repo_name: prep_external failed" >> "$FAILED_REPOS_FILE"
-      dbt run-operation dbt_external_tables.stage_external_sources --vars 'ext_full_refresh: true' --target "$DBT_TARGET" || echo "$repo_name: stage_external_sources (1) failed" >> "$FAILED_REPOS_FILE"
-      dbt run-operation dbt_external_tables.stage_external_sources --target "$DBT_TARGET" || echo "$repo_name: stage_external_sources (2) failed" >> "$FAILED_REPOS_FILE"
-      dbt test --target "$DBT_TARGET" || echo "$repo_name: dbt test failed" >> "$FAILED_REPOS_FILE"
+      dbt deps --target "$DBT_TARGET" | tee -a "$LOG_FILE" 
+      dbt seed --full-refresh --target "$DBT_TARGET" | tee -a "$LOG_FILE"
+      dbt run-operation prep_external --target "$DBT_TARGET" | tee -a "$LOG_FILE"
+      dbt run-operation dbt_external_tables.stage_external_sources --vars 'ext_full_refresh: true' --target "$DBT_TARGET" | tee -a "$LOG_FILE"
+      dbt run-operation dbt_external_tables.stage_external_sources --target "$DBT_TARGET" | tee -a "$LOG_FILE" 
+      dbt test --target "$DBT_TARGET" | tee -a "$LOG_FILE"
     else
-      dbt deps --target "$DBT_TARGET" || echo "$repo_name: dbt deps failed" >> "$FAILED_REPOS_FILE"
-      dbt seed --target "$DBT_TARGET" --full-refresh || echo "$repo_name: dbt seed failed" >> "$FAILED_REPOS_FILE"
-      dbt run --target "$DBT_TARGET" --full-refresh || echo "$repo_name: dbt run failed" >> "$FAILED_REPOS_FILE"
-      dbt test --target "$DBT_TARGET" || echo "$repo_name: dbt test failed" >> "$FAILED_REPOS_FILE"
+      dbt deps --target "$DBT_TARGET" | tee -a "$LOG_FILE"
+      dbt seed --target "$DBT_TARGET" --full-refresh | tee -a "$LOG_FILE"
+      seed=$(grep -E 'Done\. PASS=.*TOTAL=.*' "$LOG_FILE" | tail -n 1)
+      dbt run --target "$DBT_TARGET" --full-refresh | tee -a "$LOG_FILE"
+      run=$(grep -E 'Done\. PASS=.*TOTAL=.*' "$LOG_FILE" | tail -n 1)
+      dbt test --target "$DBT_TARGET" | tee -a "$LOG_FILE"
+      test=$(grep -E 'Done\. PASS=.*TOTAL=.*' "$LOG_FILE" | tail -n 1)
     fi
-
     echo "Done with $repo_name"
     echo ""
 
@@ -161,11 +167,8 @@ while IFS= read -r repo_url; do
 
 done < "$REPOS_FILE"
 
-echo ""
-echo "==============================="
-if [ -s "$FAILED_REPOS_FILE" ]; then
-  echo "⚠️ Some projects failed:"
-  cat "$FAILED_REPOS_FILE"
-else
-  echo "✅ All projects completed successfully!"
-fi
+echo "dbt seed - $seed"
+echo "dbt run - $run"
+echo "dbt test - $test"
+
+

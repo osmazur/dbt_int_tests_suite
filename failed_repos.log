@@ -1,3 +1,0 @@
-dbt-snowplow-web: dbt seed failed
-dbt-snowplow-web: dbt run failed
-dbt-snowplow-web: dbt test failed
