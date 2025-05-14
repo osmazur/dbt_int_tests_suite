@@ -4,3 +4,4 @@ target/
 data/
 packages/
 logs/
+.DS_Store
