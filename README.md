@@ -1,41 +1,14 @@
 # dbt_int_tests_suite
 
-1. Clone the repository
-```sh
-git clone https://github.com/osmazur/dbt_int_tests_suite.git
-```
 
-2. cd into the main folder
-```sh
-cd dbt_int_tests_suite
-```
+1. Copy .env_example inside dbt_gitlab folder file and rename it to .env file.
 
-3. Create the .env file. Choose the target database and add you creds
-Those envs will be exported during the run of the run_test.sh file
+2. Set up a connection
+	i. Snowflake - replace Snowflake credentials in .env file from test to your credentials.
+	ii. Embucket - launch Embucket locally, make sure connection parameters match Embucket launch parameters (if 	  you have default settings, you don't need to change anything).
+	iii. Set the target database DBT_TARGET env (embucket or snowflake) by default it will be embucket
 
-```sh
-# Create a .env configuration file
-cat << EOF > .env
-export DBT_TARGET=snowflake
-
-export SNOWFLAKE_ACCOUNT=
-export SNOWFLAKE_USER=
-export DBT_ENV_SECRET_SNOWFLAKE_PASS=
-export SNOWFLAKE_ROLE=
-export SNOWFLAKE_DATABASE=
-export SNOWFLAKE_WAREHOUSE=
-export SNOWFLAKE_SCHEMA=
-
-export EM_SNOWFLAKE_USER=
-export EM_SNOWFLAKE_PASSWORD=
-export EM_SNOWFLAKE_DB=
-export EM_SNOWFLAKE_SCHEMA=
-export EM_SNOWFLAKE_WAREHOUSE=
-
-EOF
-```
-
-4. Make the sh file executable
+3. Make the sh file executable
 ```sh
 chmod +x run_test.sh
 ```
@@ -45,4 +18,4 @@ chmod +x run_test.sh
 ./run_test.sh
 ```
 
-In repos.yml there are packages with integrations tests. By default it runs integrations tests from the dbt-utils package. Uncomment other ones to run integration tests.
+In repos.yml there are packages with integrations tests. By default it runs integrations tests from the dbt-snowplow-web package.

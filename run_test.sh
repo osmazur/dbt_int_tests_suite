@@ -169,6 +169,6 @@ done < "$REPOS_FILE"
 
 echo "dbt seed - $seed"
 echo "dbt run - $run"
-#echo "dbt test - $test"
+echo "dbt test - $test"
 
 
